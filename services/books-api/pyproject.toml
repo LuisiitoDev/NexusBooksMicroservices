@@ -1,0 +1,6 @@
+[porject]
+name = "books-api"
+version = "0.1.0"
+description = "A simple API for managing books"
+requires-python = ">=3.13"
+depedencies=[]
