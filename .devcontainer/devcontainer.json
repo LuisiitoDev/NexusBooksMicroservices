@@ -1,19 +1,24 @@
 {
   "name": "Nexus Books Development",
 
-  "image": "mcr.microsoft.com/devcontainers/base:alpine-3.22",
+  // Clean Debian base without the problematic Yarn repository.
+  "image": "mcr.microsoft.com/devcontainers/base:bookworm",
 
   "features": {
     "ghcr.io/devcontainers/features/python:1": {
       "version": "3.13"
     },
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "dockerDashComposeVersion": "v2"
+    },
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
 
   "containerEnv": {
     "PYTHONDONTWRITEBYTECODE": "1",
-    "PYTHONUNBUFFERED": "1"
+    "PYTHONUNBUFFERED": "1",
+    "PIP_DISABLE_PIP_VERSION_CHECK": "1"
   },
 
   "forwardPorts": [
@@ -32,7 +37,7 @@
     }
   },
 
-  "postCreateCommand": "python --version && docker --version && docker compose version && gh --version",
+  "postCreateCommand": "python --version && pip --version && git --version && gh --version && docker --version && docker compose version",
 
   "customizations": {
     "vscode": {
@@ -50,6 +55,9 @@
         "editor.codeActionsOnSave": {
           "source.fixAll.ruff": "explicit",
           "source.organizeImports.ruff": "explicit"
+        },
+        "[python]": {
+          "editor.defaultFormatter": "charliermarsh.ruff"
         }
       }
     }
