@@ -1,0 +1,59 @@
+{
+  "name": "Nexus Books Development",
+
+  "image": "mcr.microsoft.com/devcontainers/base:alpine-3.22",
+
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.13"
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+
+  "containerEnv": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONUNBUFFERED": "1"
+  },
+
+  "forwardPorts": [
+    8000,
+    8080
+  ],
+
+  "portsAttributes": {
+    "8000": {
+      "label": "Books API",
+      "onAutoForward": "notify"
+    },
+    "8080": {
+      "label": "NGINX",
+      "onAutoForward": "notify"
+    }
+  },
+
+  "postCreateCommand": "python --version && docker --version && docker compose version && gh --version",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.debugpy",
+        "charliermarsh.ruff",
+        "ms-azuretools.vscode-docker",
+        "redhat.vscode-yaml",
+        "github.vscode-github-actions"
+      ],
+      "settings": {
+        "python.analysis.typeCheckingMode": "basic",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.fixAll.ruff": "explicit",
+          "source.organizeImports.ruff": "explicit"
+        }
+      }
+    }
+  },
+
+  "remoteUser": "vscode"
+}
