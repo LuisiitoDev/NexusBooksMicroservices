@@ -1,24 +1,17 @@
 {
   "name": "Nexus Books Development",
 
-  // Clean Debian base without the problematic Yarn repository.
   "image": "mcr.microsoft.com/devcontainers/base:bookworm",
 
   "features": {
-    "ghcr.io/devcontainers/features/python:1": {
-      "version": "3.13"
+    "ghcr.io/devcontainers/features/dotnet:2": {
+      "version": "10.0"
     },
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
       "version": "latest",
       "dockerDashComposeVersion": "v2"
     },
     "ghcr.io/devcontainers/features/github-cli:1": {}
-  },
-
-  "containerEnv": {
-    "PYTHONDONTWRITEBYTECODE": "1",
-    "PYTHONUNBUFFERED": "1",
-    "PIP_DISABLE_PIP_VERSION_CHECK": "1"
   },
 
   "forwardPorts": [
@@ -28,7 +21,7 @@
 
   "portsAttributes": {
     "8000": {
-      "label": "Books API",
+      "label": "Application",
       "onAutoForward": "notify"
     },
     "8080": {
@@ -37,28 +30,18 @@
     }
   },
 
-  "postCreateCommand": "python --version && pip --version && git --version && gh --version && docker --version && docker compose version",
+  "postCreateCommand": "dotnet --version && git --version && gh --version && docker --version && docker compose version",
 
   "customizations": {
     "vscode": {
       "extensions": [
-        "ms-python.python",
-        "ms-python.debugpy",
-        "charliermarsh.ruff",
+        "ms-dotnettools.csdevkit",
         "ms-azuretools.vscode-docker",
         "redhat.vscode-yaml",
         "github.vscode-github-actions"
       ],
       "settings": {
-        "python.analysis.typeCheckingMode": "basic",
-        "editor.formatOnSave": true,
-        "editor.codeActionsOnSave": {
-          "source.fixAll.ruff": "explicit",
-          "source.organizeImports.ruff": "explicit"
-        },
-        "[python]": {
-          "editor.defaultFormatter": "charliermarsh.ruff"
-        }
+        "editor.formatOnSave": true
       }
     }
   },
