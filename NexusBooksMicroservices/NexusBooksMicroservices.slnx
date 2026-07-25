@@ -1,0 +1,21 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Author/">
+    <Project Path="NexusBooks.Author.Api/NexusBooks.Author.Api.csproj" />
+    <Project Path="NexusBooks.Author.Application/NexusBooks.Author.Application.csproj" />
+    <Project Path="NexusBooks.Author.Domain/NexusBooks.Author.Domain.csproj" />
+    <Project Path="NexusBooks.Author.Infraestructure/NexusBooks.Author.Infraestructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Book/">
+    <Project Path="NexusBooks.Book.Api/NexusBooks.Book.Api.csproj" />
+    <Project Path="NexusBooks.Book.Application/NexusBooks.Book.Application.csproj" />
+    <Project Path="NexusBooks.Book.Domain/NexusBooks.Book.Domain.csproj" />
+    <Project Path="NexusBooks.Book.Infraestructure/NexusBooks.Book.Infraestructure.csproj" />
+  </Folder>
+  <Folder Name="/src/ShoppingCart/">
+    <Project Path="NexusBooks.ShoppingCart.Api/NexusBooks.ShoppingCart.Api.csproj" />
+    <Project Path="NexusBooks.ShoppingCart.Application/NexusBooks.ShoppingCart.Application.csproj" />
+    <Project Path="NexusBooks.ShoppingCart.Domain/NexusBooks.ShoppingCart.Domain.csproj" />
+    <Project Path="NexusBooks.ShoppingCart.Infraestructure/NexusBooks.ShoppingCart.Infraestructure.csproj" />
+  </Folder>
+</Solution>

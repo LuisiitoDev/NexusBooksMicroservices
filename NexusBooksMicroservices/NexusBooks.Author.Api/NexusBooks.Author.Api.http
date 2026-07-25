@@ -1,0 +1,6 @@
+@NexusBooks.Author.Api_HostAddress = http://localhost:5261
+
+GET {{NexusBooks.Author.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

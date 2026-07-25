@@ -1,0 +1,6 @@
+@NexusBooks.ShoppingCart.Api_HostAddress = http://localhost:5290
+
+GET {{NexusBooks.ShoppingCart.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
