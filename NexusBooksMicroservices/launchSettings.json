@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "Docker Compose": {
+      "commandName": "DockerCompose",
+      "commandVersion": "1.0",
+      "serviceActions": {
+        "nexusbooks.author.api": "StartDebugging",
+        "nexusbooks.book.api": "StartDebugging",
+        "nexusbooks.shoppingcart.api": "StartDebugging"
+      }
+    }
+  }
+}

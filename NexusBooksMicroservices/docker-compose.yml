@@ -1,0 +1,20 @@
+services:
+  nexusbooks.author.api:
+    image: ${DOCKER_REGISTRY-}nexusbooksauthorapi
+    build:
+      context: .
+      dockerfile: NexusBooks.Author.Api/Dockerfile
+
+  nexusbooks.book.api:
+    image: ${DOCKER_REGISTRY-}nexusbooksbookapi
+    build:
+      context: .
+      dockerfile: NexusBooks.Book.Api/Dockerfile
+
+
+  nexusbooks.shoppingcart.api:
+    image: ${DOCKER_REGISTRY-}nexusbooksshoppingcartapi
+    build:
+      context: .
+      dockerfile: NexusBooks.ShoppingCart.Api/Dockerfile
+
