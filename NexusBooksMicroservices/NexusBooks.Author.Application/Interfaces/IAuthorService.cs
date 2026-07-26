@@ -1,4 +1,5 @@
 ﻿using NexusBooks.Author.Application.Dtos;
+using NexusBooks.Shared;
 
 namespace NexusBooks.Author.Application.Interfaces;
 

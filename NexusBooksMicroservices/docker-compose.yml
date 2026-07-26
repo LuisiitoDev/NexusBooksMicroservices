@@ -4,12 +4,16 @@ services:
     build:
       context: .
       dockerfile: NexusBooks.Author.Api/Dockerfile
+    depends_on:
+      - sqlserver
 
   nexusbooks.book.api:
     image: ${DOCKER_REGISTRY-}nexusbooksbookapi
     build:
       context: .
       dockerfile: NexusBooks.Book.Api/Dockerfile
+    depends_on:
+      - postgres
 
 
   nexusbooks.shoppingcart.api:
@@ -30,8 +34,19 @@ services:
     volumes:
       - sqlserver-data:/var/opt/mssql
 
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: "NexusBooksBookDb"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
 
 
 volumes:
   sqlserver-data:
+  postgres-data:
 

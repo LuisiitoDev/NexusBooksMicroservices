@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\NexusBooks.Author.Domain\NexusBooks.Author.Domain.csproj" />
     <ProjectReference Include="..\NexusBooks.Author.Infraestructure\NexusBooks.Author.Infraestructure.csproj" />
+    <ProjectReference Include="..\NexusBooks.Shared\NexusBooks.Shared.csproj" />
   </ItemGroup>
 
 </Project>

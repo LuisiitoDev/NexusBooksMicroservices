@@ -1,8 +1,17 @@
+using Microsoft.EntityFrameworkCore;
+using NexusBooks.Book.Application.Dtos;
+using NexusBooks.Book.Application.Interfaces;
+using NexusBooks.Book.Application.Services;
+using NexusBooks.Book.Infraestructure.Persistence;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddDbContext<NexusDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("BookDb")));
+builder.Services.AddScoped<IBookService, BookService>();
 
 var app = builder.Build();
 
@@ -14,28 +23,60 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+var books = app.MapGroup("/api/books");
 
-app.MapGet("/weatherforecast", () =>
+books.MapGet("/", async (IBookService service, CancellationToken cancellation) =>
 {
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+    var result = await service.GetAll(cancellation);
+    return Results.Ok(result.Value);
+});
+
+books.MapGet("/{id:long}", async (long id, IBookService service, CancellationToken cancellation) =>
+{
+    var result = await service.GetById(id, cancellation);
+
+    return result.StatusCode switch
+    {
+        404 => Results.NotFound(result.Message),
+        _ => Results.Ok(result.Value)
+    };
+});
+
+books.MapPost("/", async (DtoBook book, IBookService service, CancellationToken cancellation) =>
+{
+    var result = await service.Create(book, cancellation);
+
+    return result.StatusCode switch
+    {
+        400 => Results.BadRequest(result.Message),
+        _ when result.Value is not null => Results.Created($"/api/books/{result.Value.Id}", result.Value),
+        _ => Results.Problem(result.Message, statusCode: result.StatusCode)
+    };
+});
+
+books.MapPut("/{id:long}", async (long id, DtoBook book, IBookService service, CancellationToken cancellation) =>
+{
+    var payload = book with { Id = id };
+    var result = await service.Update(payload, cancellation);
+
+    return result.StatusCode switch
+    {
+        404 => Results.NotFound(result.Message),
+        400 => Results.BadRequest(result.Message),
+        _ => Results.Ok(result.Value)
+    };
+});
+
+books.MapDelete("/{id:long}", async (long id, IBookService service, CancellationToken cancellation) =>
+{
+    var result = await service.Delete(id, cancellation);
+
+    return result.StatusCode switch
+    {
+        404 => Results.NotFound(result.Message),
+        400 => Results.BadRequest(result.Message),
+        _ => Results.NoContent()
+    };
+});
 
 app.Run();
-
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

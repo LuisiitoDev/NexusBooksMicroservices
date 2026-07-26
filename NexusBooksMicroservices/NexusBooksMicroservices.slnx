@@ -21,4 +21,5 @@
   <Project Path="docker-compose.dcproj">
     <Build />
   </Project>
+  <Project Path="NexusBooks.Shared/NexusBooks.Shared.csproj" />
 </Solution>

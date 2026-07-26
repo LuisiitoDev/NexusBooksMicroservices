@@ -6,4 +6,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\NexusBooks.Book.Domain\NexusBooks.Book.Domain.csproj" />
+    <ProjectReference Include="..\NexusBooks.Book.Infraestructure\NexusBooks.Book.Infraestructure.csproj" />
+    <ProjectReference Include="..\NexusBooks.Shared\NexusBooks.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

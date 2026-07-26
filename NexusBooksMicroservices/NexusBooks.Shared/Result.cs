@@ -1,4 +1,4 @@
-﻿namespace NexusBooks.Author.Application.Dtos;
+﻿namespace NexusBooks.Shared;
 
 public record Result(int StatusCode, string? Message = null);
 public sealed record Success(object Value, int StatusCode = 200) : Result(StatusCode);

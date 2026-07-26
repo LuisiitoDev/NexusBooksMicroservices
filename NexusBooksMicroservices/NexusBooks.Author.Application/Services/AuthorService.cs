@@ -3,6 +3,7 @@ using NexusBooks.Author.Application.Extensions;
 using NexusBooks.Author.Application.Interfaces;
 using NexusBooks.Author.Infraestructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using NexusBooks.Shared;
 
 namespace NexusBooks.Author.Application.Services;
 
