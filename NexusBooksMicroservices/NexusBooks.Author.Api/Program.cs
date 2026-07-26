@@ -1,8 +1,17 @@
+using Microsoft.EntityFrameworkCore;
+using NexusBooks.Author.Application.Dtos;
+using NexusBooks.Author.Application.Interfaces;
+using NexusBooks.Author.Application.Services;
+using NexusBooks.Author.Infraestructure.Persistence;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddDbContext<NexusDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("AuthorDb")));
+builder.Services.AddScoped<IAuthorService, AuthorService>();
 
 var app = builder.Build();
 
@@ -14,28 +23,60 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+var authors = app.MapGroup("/api/authors");
 
-app.MapGet("/weatherforecast", () =>
+authors.MapGet("/", async (IAuthorService service, CancellationToken cancellation) =>
 {
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+    var result = await service.GetAll(cancellation);
+    return Results.Ok(result.Value);
+});
+
+authors.MapGet("/{id:long}", async (long id, IAuthorService service, CancellationToken cancellation) =>
+{
+    var result = await service.GetById(id, cancellation);
+
+    return result.StatusCode switch
+    {
+        404 => Results.NotFound(result.Message),
+        _ => Results.Ok(result.Value)
+    };
+});
+
+authors.MapPost("/", async (DtoAuthor author, IAuthorService service, CancellationToken cancellation) =>
+{
+    var result = await service.Create(author, cancellation);
+
+    return result.StatusCode switch
+    {
+        400 => Results.BadRequest(result.Message),
+        _ when result.Value is not null => Results.Created($"/api/authors/{result.Value.Id}", result.Value),
+        _ => Results.Problem(result.Message, statusCode: result.StatusCode)
+    };
+});
+
+authors.MapPut("/{id:long}", async (long id, DtoAuthor author, IAuthorService service, CancellationToken cancellation) =>
+{
+    var payload = author with { Id = id };
+    var result = await service.Update(payload, cancellation);
+
+    return result.StatusCode switch
+    {
+        404 => Results.NotFound(result.Message),
+        400 => Results.BadRequest(result.Message),
+        _ => Results.Ok(result.Value)
+    };
+});
+
+authors.MapDelete("/{id:long}", async (long id, IAuthorService service, CancellationToken cancellation) =>
+{
+    var result = await service.Delete(id, cancellation);
+
+    return result.StatusCode switch
+    {
+        404 => Results.NotFound(result.Message),
+        400 => Results.BadRequest(result.Message),
+        _ => Results.NoContent()
+    };
+});
 
 app.Run();
-
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
