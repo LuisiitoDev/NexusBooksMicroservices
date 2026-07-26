@@ -18,8 +18,5 @@
     <Project Path="NexusBooks.ShoppingCart.Domain/NexusBooks.ShoppingCart.Domain.csproj" />
     <Project Path="NexusBooks.ShoppingCart.Infraestructure/NexusBooks.ShoppingCart.Infraestructure.csproj" />
   </Folder>
-  <Project Path="docker-compose.dcproj">
-    <Build />
-  </Project>
   <Project Path="NexusBooks.Shared/NexusBooks.Shared.csproj" />
 </Solution>
