@@ -24,5 +24,8 @@
   <Folder Name="/Web/">
     <Project Path="NexusBooks.Client/NexusBooks.Client.csproj" />
   </Folder>
+  <Project Path="docker-compose.dcproj">
+    <Build />
+  </Project>
   <Project Path="NexusBooks.Shared/NexusBooks.Shared.csproj" />
 </Solution>

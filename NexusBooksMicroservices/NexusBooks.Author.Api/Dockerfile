@@ -29,7 +29,7 @@ COPY ["NexusBooks.Author.Api/NexusBooks.Author.Api.csproj", "NexusBooks.Author.A
 COPY ["NexusBooks.Author.Application/NexusBooks.Author.Application.csproj", "NexusBooks.Author.Application/"]
 COPY ["NexusBooks.Author.Domain/NexusBooks.Author.Domain.csproj", "NexusBooks.Author.Domain/"]
 COPY ["NexusBooks.Author.Infraestructure/NexusBooks.Author.Infraestructure.csproj", "NexusBooks.Author.Infraestructure/"]
-COPY ["../../NexusBooks.Shared/NexusBooks.Shared.csproj", "NexusBooks.Shared"]
+COPY ["NexusBooks.Shared/NexusBooks.Shared.csproj", "NexusBooks.Shared/"]
 
 # Download all required external libraries and dependencies.
 RUN dotnet restore "./NexusBooks.Author.Api/NexusBooks.Author.Api.csproj"
