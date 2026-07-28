@@ -60,9 +60,10 @@ services:
       test:
         - CMD-SHELL
         - /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -d master -U sa -P "$$MSSQL_SA_PASSWORD" -Q "SELECT 1" -C
+      start_period: 60s
       interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 30
 
   postgres:
     image: postgres:16
@@ -83,7 +84,7 @@ services:
       retries: 10
 
   mysql:
-    image: mysql:8.0.36
+    image: mysql:8.0.41
     environment:
       MYSQL_DATABASE: NexusBooksShoppingCartDb
       MYSQL_ROOT_PASSWORD: root
