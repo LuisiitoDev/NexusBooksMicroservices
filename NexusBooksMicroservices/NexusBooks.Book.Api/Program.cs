@@ -18,7 +18,7 @@ var app = builder.Build();
 await using (var scope = app.Services.CreateAsyncScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<NexusDbContext>();
-    await dbContext.Database.EnsureCreatedAsync();
+    await dbContext.Database.MigrateAsync();
 }
 
 // Configure the HTTP request pipeline.

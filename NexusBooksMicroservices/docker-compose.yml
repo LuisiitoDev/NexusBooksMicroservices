@@ -3,7 +3,9 @@ services:
     image: ${DOCKER_REGISTRY-}nexusbookauthor
     build:
       context: .
-      dockerfile: NexusBooks.Book.Author/Dockerfile
+      dockerfile: NexusBooks.Author.Api/Dockerfile
+    environment:
+      - ConnectionStrings__AuthorDb=Server=sql_server,1433;Database=AuthorDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD};TrustServerCertificate=True;
     depends_on:
       sql_server:
         condition: service_healthy
@@ -13,6 +15,8 @@ services:
     build:
       context: .
       dockerfile: NexusBooks.Book.Api/Dockerfile
+    environment:
+      - ConnectionStrings__BookDb=Host=postgres;Port=5432;Database=NexusBooksBookDb;Username=postgres;Password=postgres;Include Error Detail=true
     depends_on:
       postgres:
         condition: service_healthy
@@ -22,6 +26,8 @@ services:
     build:
       context: .
       dockerfile: NexusBooks.ShoppingCart.Api/Dockerfile
+    environment:
+      - ConnectionStrings__ShoppingCartDb=Server=mysql;Port=3306;Database=NexusBooksShoppingCartDb;User=root;Password=root;Allow User Variables=True;CharSet=utf8mb4
     depends_on:
       mysql:
         condition: service_healthy
@@ -92,6 +98,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
+
 
 volumes:
   sqlserver-data:
