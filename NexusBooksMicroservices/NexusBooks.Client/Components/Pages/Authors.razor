@@ -1,0 +1,57 @@
+@page "/authors"
+@rendermode InteractiveServer
+@inject INexusBooksApi Api
+
+<PageTitle>Authors · NexusBooks</PageTitle>
+
+<div class="page-heading">
+    <div><span class="eyebrow">Library directory</span><h1>Authors</h1><p>Create the voices behind your catalog.</p></div>
+    <button class="button primary" @onclick="OpenForm">＋ Add author</button>
+</div>
+
+@if (!string.IsNullOrEmpty(message)) { <div class="notice @(isError ? "error" : "success")">@message</div> }
+
+@if (showForm)
+{
+    <section class="panel form-panel">
+        <div class="panel-heading"><div><span class="eyebrow">New profile</span><h2>Add an author</h2></div><button class="icon-button" aria-label="Close" @onclick="CloseForm">×</button></div>
+        <EditForm Model="form" OnValidSubmit="SaveAuthorAsync">
+            <DataAnnotationsValidator />
+            <div class="form-grid">
+                <label><span>Full name</span><InputText @bind-Value="form.Name" placeholder="e.g. Octavia E. Butler" /><ValidationMessage For="() => form.Name" /></label>
+                <label><span>Date of birth</span><InputDate @bind-Value="form.BirthDate" /><ValidationMessage For="() => form.BirthDate" /></label>
+            </div>
+            <div class="form-actions"><button type="button" class="button ghost" @onclick="CloseForm">Cancel</button><button class="button primary" disabled="@saving">@(saving ? "Saving…" : "Save author")</button></div>
+        </EditForm>
+    </section>
+}
+
+<section class="panel">
+    <div class="panel-heading"><div><h2>Author directory</h2><p>@authors.Count author@(authors.Count == 1 ? "" : "s") available</p></div><button class="button ghost small" @onclick="LoadAsync">Refresh</button></div>
+    @if (loading) { <div class="empty-state"><div class="spinner"></div><p>Loading authors…</p></div> }
+    else if (authors.Count == 0) { <div class="empty-state"><span class="empty-icon">✦</span><h3>Your directory is empty</h3><p>Add an author, then use them when creating a book.</p><button class="button primary" @onclick="OpenForm">Add your first author</button></div> }
+    else
+    {
+        <div class="card-grid">
+        @foreach (var author in authors)
+        {
+            <article class="entity-card"><div class="avatar">@Initials(author.Name)</div><div class="entity-main"><h3>@author.Name</h3><p>Born @author.BirthDate.ToString("MMMM d, yyyy")</p></div><button class="icon-button danger" title="Delete author" @onclick="() => DeleteAsync(author)">⌫</button></article>
+        }
+        </div>
+    }
+</section>
+
+@code {
+    private List<AuthorDto> authors = []; private AuthorFormModel form = new();
+    private bool loading = true, saving, showForm, isError; private string? message;
+    protected override Task OnInitializedAsync() => LoadAsync();
+    private async Task LoadAsync() { loading = true; message = null; try { authors = await Api.GetAuthorsAsync(); } catch (Exception ex) { Fail(ex, "authors"); } finally { loading = false; } }
+    private void OpenForm() { form = new(); showForm = true; message = null; }
+    private void CloseForm() => showForm = false;
+    private async Task SaveAuthorAsync() { saving = true; try { await Api.CreateAuthorAsync(form); showForm = false; message = $"{form.Name} was added successfully."; isError = false; await LoadKeepingMessageAsync(); } catch (Exception ex) { Fail(ex, "author"); } finally { saving = false; } }
+    private async Task DeleteAsync(AuthorDto author) { try { await Api.DeleteAuthorAsync(author.Id); message = $"{author.Name} was removed."; isError = false; await LoadKeepingMessageAsync(); } catch (Exception ex) { Fail(ex, "author"); } }
+    private async Task LoadKeepingMessageAsync() { var saved = message; var error = isError; await LoadAsync(); message = saved; isError = error; }
+    private void Fail(Exception ex, string resource) { isError = true; message = $"We couldn't load or update {resource}. {Friendly(ex)}"; }
+    private static string Friendly(Exception ex) => ex is Refit.ApiException api && !string.IsNullOrWhiteSpace(api.Content) ? api.Content.Trim('"') : "Check that the gateway and services are running.";
+    private static string Initials(string name) => string.Concat(name.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(x => char.ToUpperInvariant(x[0])));
+}

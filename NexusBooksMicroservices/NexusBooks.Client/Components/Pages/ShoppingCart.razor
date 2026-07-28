@@ -1,0 +1,50 @@
+@page "/shopping-cart"
+@rendermode InteractiveServer
+@inject INexusBooksApi Api
+
+<PageTitle>Shopping cart · NexusBooks</PageTitle>
+<div class="page-heading"><div><span class="eyebrow">Simple checkout</span><h1>Shopping cart</h1><p>Choose a story and complete your purchase.</p></div><span class="secure-badge">◆ Secure checkout</span></div>
+
+<div class="checkout-steps" aria-label="Checkout progress">
+    <div class="step @(stage >= 1 ? "active" : "")"><span>1</span><div><b>Choose</b><small>Select a book</small></div></div>
+    <i></i><div class="step @(stage >= 2 ? "active" : "")"><span>2</span><div><b>Review</b><small>Confirm order</small></div></div>
+    <i></i><div class="step @(stage >= 3 ? "active" : "")"><span>3</span><div><b>Complete</b><small>Order placed</small></div></div>
+</div>
+@if (!string.IsNullOrEmpty(message)) { <div class="notice error">@message</div> }
+
+@if (loading) { <section class="panel"><div class="empty-state"><div class="spinner"></div><p>Preparing checkout…</p></div></section> }
+else if (stage == 1)
+{
+<section class="panel"><div class="panel-heading"><div><h2>Choose your next read</h2><p>Select one title to continue</p></div><span class="cart-count">@books.Count available</span></div>
+    @if (books.Count == 0) { <div class="empty-state"><span class="empty-icon">▤</span><h3>The catalog is empty</h3><p>Add a book before starting an order.</p><a class="button primary" href="/books">Go to books</a></div> }
+    else { <div class="select-list">@foreach(var book in books){<button class="select-book @(selectedId == book.Id ? "selected" : "")" @onclick="() => selectedId = book.Id"><span class="mini-cover">@book.Title.FirstOrDefault()</span><span><b>@book.Title</b><small>@AuthorNames(book) · @book.PublicationDate.Year</small></span><i>@(selectedId == book.Id ? "✓" : "")</i></button>}</div>
+    <div class="checkout-footer"><span>Select a book to proceed</span><button class="button primary" disabled="@(selectedId == 0)" @onclick="() => stage = 2">Review order →</button></div> }
+</section>
+}
+else if (stage == 2)
+{
+<div class="checkout-layout"><section class="panel"><div class="panel-heading"><div><span class="eyebrow">Order summary</span><h2>Review your purchase</h2></div></div>
+    <article class="review-book"><div class="book-cover"><span>@SelectedBook?.Title.FirstOrDefault()</span><small>NEXUS<br/>BOOKS</small></div><div><span class="tag">Digital edition</span><h3>@SelectedBook?.Title</h3><p>@AuthorNames(SelectedBook!)</p><span class="isbn">ISBN @SelectedBook?.ISBN</span></div></article>
+    <div class="order-lines"><p><span>Book</span><b>Included</b></p><p><span>Delivery</span><b>Instant</b></p><p class="total"><span>Total</span><b>Ready to order</b></p></div>
+    <div class="form-actions between"><button class="button ghost" @onclick="() => stage = 1">← Back</button><button class="button primary" disabled="@submitting" @onclick="PlaceOrderAsync">@(submitting ? "Placing order…" : "Place order")</button></div>
+</section><aside class="panel confidence"><h3>You're in good hands</h3><p>✓ Your order is sent through the NexusBooks gateway.</p><p>✓ Checkout creates a durable shopping cart session.</p><p>✓ You can review recent orders below.</p></aside></div>
+}
+else
+{
+<section class="panel success-panel"><div class="success-mark">✓</div><span class="eyebrow">Order confirmed</span><h2>Happy reading!</h2><p><b>@SelectedBook?.Title</b> has been added to your purchase history.</p><div class="receipt"><span>Order reference</span><code>@createdCart?.Id</code></div><div class="form-actions centered"><button class="button primary" @onclick="StartAgain">Purchase another book</button><a class="button ghost" href="/books">Browse catalog</a></div></section>
+}
+
+@if (!loading && carts.Count > 0)
+{
+<section class="panel history"><div class="panel-heading"><div><h2>Recent purchases</h2><p>Your latest shopping cart sessions</p></div></div><div class="history-list">@foreach(var cart in carts.OrderByDescending(c=>c.CreateAt).Take(5)){<div><span class="history-icon">✓</span><span><b>@CartTitles(cart)</b><small>@cart.CreateAt.ToString("MMM d, yyyy · HH:mm")</small></span><code>@cart.Id.ToString()[..8]</code></div>}</div></section>
+}
+
+@code {
+ private List<BookDto> books=[];private List<AuthorDto> authors=[];private List<ShoppingCartSessionDto> carts=[];private long selectedId;private int stage=1;private bool loading=true,submitting;private string? message;private ShoppingCartSessionDto? createdCart;
+ private BookDto? SelectedBook=>books.FirstOrDefault(b=>b.Id==selectedId);
+ protected override async Task OnInitializedAsync(){try{var b=Api.GetBooksAsync();var a=Api.GetAuthorsAsync();var c=Api.GetShoppingCartsAsync();await Task.WhenAll(b,a,c);books=await b;authors=await a;carts=await c;}catch(Exception ex){message=ex is Refit.ApiException api&&!string.IsNullOrWhiteSpace(api.Content)?api.Content.Trim('"'):"Checkout is unavailable. Check that the gateway and services are running.";}finally{loading=false;}}
+ private async Task PlaceOrderAsync(){if(SelectedBook is null)return;submitting=true;message=null;try{var now=DateTime.UtcNow;var payload=new ShoppingCartSessionDto(Guid.NewGuid(),now,[new ShoppingCartDetailDto(Guid.NewGuid(),SelectedBook.Id)]);createdCart=await Api.CreateShoppingCartAsync(payload);if(createdCart is not null)carts.Insert(0,createdCart);stage=3;}catch(Exception ex){message=ex is Refit.ApiException api&&!string.IsNullOrWhiteSpace(api.Content)?api.Content.Trim('"'):"We couldn't place this order. Please try again.";}finally{submitting=false;}}
+ private void StartAgain(){selectedId=0;createdCart=null;message=null;stage=1;}
+ private string AuthorNames(BookDto book){var names=authors.Where(a=>book.AuthorIds?.Contains(a.Id)==true).Select(a=>a.Name);return string.Join(", ",names.DefaultIfEmpty("Unknown author"));}
+ private string CartTitles(ShoppingCartSessionDto cart){var titles=cart.Details.Select(d=>books.FirstOrDefault(b=>b.Id==d.ProductSelected)?.Title??$"Book #{d.ProductSelected}");return string.Join(", ",titles);}
+}

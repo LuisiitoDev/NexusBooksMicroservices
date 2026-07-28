@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace NexusBooks.Client.Models;
 
@@ -41,6 +42,7 @@ public sealed class BookFormModel
     [Required]
     public DateTime PublicationDate { get; set; } = DateTime.Today;
 
+    [JsonPropertyName("authorIds")]
     public HashSet<long> SelectedAuthorIds { get; set; } = [];
 }
 
