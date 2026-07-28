@@ -50,7 +50,6 @@ services:
 
   nexusbooks.client:
     image: ${DOCKER_REGISTRY-}nexusbooksclient
-    pull_policy: build
     build:
       context: .
       dockerfile: NexusBooks.Client/Dockerfile
