@@ -1,28 +1,16 @@
 ﻿@page "/"
 @rendermode InteractiveServer
+<PageTitle>NexusBooks · Your independent library</PageTitle>
 
-<PageTitle>Home</PageTitle>
-
-<h1>NexusBooks microservices client</h1>
-
-<p>
-    Use this client to manage authors, manage books, browse the catalog, and purchase a book through the shopping cart service.
-</p>
-
-<section>
-    <h2>Quick links</h2>
-    <ul>
-        <li><a href="/authors">Feed the authors database</a></li>
-        <li><a href="/books">Feed the books database</a></li>
-        <li><a href="/shopping-cart">Purchase a book</a></li>
-    </ul>
+<section class="hero">
+    <div class="hero-copy"><span class="eyebrow light">Your catalog, connected</span><h1>Stories find their way <em>through Nexus.</em></h1><p>A thoughtfully designed workspace for managing authors, curating books, and turning a great catalog into effortless purchases.</p><div class="hero-actions"><a class="button light" href="/books">Explore the catalog →</a><a class="button outline-light" href="/authors">Add an author</a></div></div>
+    <div class="hero-art" aria-hidden="true"><div class="orb"></div><div class="floating-book book-one"><span>N</span><small>THE<br/>NEXUS</small></div><div class="floating-book book-two"><span>✦</span><small>NEW<br/>STORIES</small></div><div class="spark s1">✦</div><div class="spark s2">·</div></div>
 </section>
 
-<section>
-    <h2>Workflow</h2>
-    <ol>
-        <li>Create authors first.</li>
-        <li>Create books and assign one or more authors.</li>
-        <li>Select a book and create a shopping cart purchase.</li>
-    </ol>
-</section>
+<section class="workflow-section"><div class="section-title"><span class="eyebrow">One connected journey</span><h2>From writer to reader</h2><p>Three services, one beautifully simple workflow.</p></div><div class="workflow-grid">
+    <a class="workflow-card" href="/authors"><span class="number">01</span><div class="feature-icon violet">✎</div><h3>Grow your community</h3><p>Create author profiles and build the creative foundation of your library.</p><b>Manage authors →</b></a>
+    <a class="workflow-card" href="/books"><span class="number">02</span><div class="feature-icon coral">▤</div><h3>Curate the catalog</h3><p>Add rich book details and connect every title with its authors.</p><b>Add books →</b></a>
+    <a class="workflow-card" href="/shopping-cart"><span class="number">03</span><div class="feature-icon gold">⌁</div><h3>Make checkout easy</h3><p>Guide readers through a familiar, confidence-building purchase flow.</p><b>Start shopping →</b></a>
+</div></section>
+
+<section class="gateway-callout"><div><span class="gateway-dot"></span><span><b>Powered by one reliable gateway</b><small>The client communicates with every microservice through YARP.</small></span></div><code>CLIENT → YARP → SERVICES</code></section>
