@@ -1,0 +1,45 @@
+@page "/books"
+@rendermode InteractiveServer
+@inject INexusBooksApi Api
+
+<PageTitle>Books · NexusBooks</PageTitle>
+<div class="page-heading"><div><span class="eyebrow">Curated collection</span><h1>Books</h1><p>Build a catalog your readers will love.</p></div><button class="button primary" @onclick="OpenForm">＋ Add book</button></div>
+@if (!string.IsNullOrEmpty(message)) { <div class="notice @(isError ? "error" : "success")">@message</div> }
+
+@if (showForm)
+{
+<section class="panel form-panel"><div class="panel-heading"><div><span class="eyebrow">Catalog entry</span><h2>Add a new book</h2></div><button class="icon-button" @onclick="CloseForm">×</button></div>
+    <EditForm Model="form" OnValidSubmit="SaveAsync"><DataAnnotationsValidator />
+        <div class="form-grid">
+            <label class="wide"><span>Title</span><InputText @bind-Value="form.Title" placeholder="Book title" /><ValidationMessage For="() => form.Title" /></label>
+            <label><span>ISBN</span><InputText @bind-Value="form.ISBN" placeholder="978-0-00-000000-0" /><ValidationMessage For="() => form.ISBN" /></label>
+            <label><span>Publication date</span><InputDate @bind-Value="form.PublicationDate" /></label>
+            <label class="wide"><span>Overview</span><InputTextArea @bind-Value="form.OverView" placeholder="A short, compelling description…" /><ValidationMessage For="() => form.OverView" /></label>
+        </div>
+        <fieldset class="author-picker"><legend>Authors <small>Select one or more</small></legend>
+            @if (authors.Count == 0) { <p class="muted">No authors yet. <a href="/authors">Add an author first.</a></p> }
+            else { @foreach (var author in authors) { <label class="check-pill"><input type="checkbox" checked="@form.SelectedAuthorIds.Contains(author.Id)" @onchange="e => ToggleAuthor(author.Id, (bool?)e.Value == true)" /><span>@author.Name</span></label> } }
+        </fieldset>
+        <div class="form-actions"><button type="button" class="button ghost" @onclick="CloseForm">Cancel</button><button class="button primary" disabled="@(saving || authors.Count == 0)">@(saving ? "Saving…" : "Add to catalog")</button></div>
+    </EditForm>
+</section>
+}
+
+<section class="panel"><div class="panel-heading"><div><h2>Catalog</h2><p>@books.Count title@(books.Count == 1 ? "" : "s")</p></div><button class="button ghost small" @onclick="LoadAsync">Refresh</button></div>
+@if (loading) { <div class="empty-state"><div class="spinner"></div><p>Opening the catalog…</p></div> }
+else if (books.Count == 0) { <div class="empty-state"><span class="empty-icon">▤</span><h3>No books on the shelf</h3><p>Create your first catalog entry to start selling.</p><button class="button primary" @onclick="OpenForm">Add your first book</button></div> }
+else { <div class="book-grid">@foreach (var book in books) { <article class="book-card"><div class="book-cover"><span>@book.Title.FirstOrDefault()</span><small>NEXUS<br/>BOOKS</small></div><div class="book-info"><div class="book-topline"><span class="tag">@book.PublicationDate.Year</span><button class="icon-button danger" title="Delete book" @onclick="() => DeleteAsync(book)">⌫</button></div><h3>@book.Title</h3><p class="authors-line">@AuthorNames(book)</p><p class="overview">@book.OverView</p><span class="isbn">ISBN @book.ISBN</span></div></article> }</div> }
+</section>
+
+@code {
+ private List<BookDto> books=[]; private List<AuthorDto> authors=[]; private BookFormModel form=new(); private bool loading=true,saving,showForm,isError; private string? message;
+ protected override Task OnInitializedAsync()=>LoadAsync();
+ private async Task LoadAsync(){loading=true;message=null;try{var a=Api.GetAuthorsAsync();var b=Api.GetBooksAsync();await Task.WhenAll(a,b);authors=await a;books=await b;}catch(Exception ex){Fail(ex);}finally{loading=false;}}
+ private void OpenForm(){form=new();showForm=true;message=null;} private void CloseForm()=>showForm=false;
+ private void ToggleAuthor(long id,bool selected){if(selected)form.SelectedAuthorIds.Add(id);else form.SelectedAuthorIds.Remove(id);}
+ private async Task SaveAsync(){saving=true;try{await Api.CreateBookAsync(form);showForm=false;message=$"{form.Title} is now in the catalog.";isError=false;await ReloadPreservingAsync();}catch(Exception ex){Fail(ex);}finally{saving=false;}}
+ private async Task DeleteAsync(BookDto book){try{await Api.DeleteBookAsync(book.Id);message=$"{book.Title} was removed.";isError=false;await ReloadPreservingAsync();}catch(Exception ex){Fail(ex);}}
+ private async Task ReloadPreservingAsync(){var m=message;var e=isError;await LoadAsync();message=m;isError=e;}
+ private string AuthorNames(BookDto book){var names=authors.Where(a=>book.AuthorIds?.Contains(a.Id)==true).Select(a=>a.Name).ToList();return names.Count>0?string.Join(", ",names):"Unknown author";}
+ private void Fail(Exception ex){isError=true;message=ex is Refit.ApiException api&&!string.IsNullOrWhiteSpace(api.Content)?api.Content.Trim('"'):"The catalog is unavailable. Check that the gateway and services are running.";}
+}

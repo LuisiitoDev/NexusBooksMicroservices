@@ -38,13 +38,26 @@ services:
     build:
       context: .
       dockerfile: NexusBooks.Gateway/Dockerfile
+    environment:
+      - ServiceEndpoints__Authors=http://nexusbooks.book.author:8080/
+      - ServiceEndpoints__Books=http://nexusbooks.book.api:8080/
+      - ServiceEndpoints__ShoppingCart=http://nexusbooks.shoppingcart.api:8080/
+    depends_on:
+      - nexusbooks.book.author
+      - nexusbooks.book.api
+      - nexusbooks.shoppingcart.api
 
 
   nexusbooks.client:
     image: ${DOCKER_REGISTRY-}nexusbooksclient
+    pull_policy: build
     build:
       context: .
       dockerfile: NexusBooks.Client/Dockerfile
+    environment:
+      - ApiEndpoints__Gateway=http://nexusbooks.gateway:8080
+    depends_on:
+      - nexusbooks.gateway
     ports:
       - "8080:8080"
 

@@ -18,7 +18,7 @@ public interface INexusBooksApi
     Task<AuthorDto?> UpdateAuthorAsync(long id, [Body] AuthorFormModel author, CancellationToken cancellationToken = default);
 
     [Delete("/api/authors/{id}")]
-    Task<bool> DeleteAuthorAsync(long id, CancellationToken cancellationToken = default);
+    Task DeleteAuthorAsync(long id, CancellationToken cancellationToken = default);
 
     [Get("/api/books")]
     Task<List<BookDto>> GetBooksAsync(CancellationToken cancellationToken = default);
@@ -33,7 +33,7 @@ public interface INexusBooksApi
     Task<BookDto?> UpdateBookAsync(long id, [Body] BookFormModel book, CancellationToken cancellationToken = default);
 
     [Delete("/api/books/{id}")]
-    Task<bool> DeleteBookAsync(long id, CancellationToken cancellationToken = default);
+    Task DeleteBookAsync(long id, CancellationToken cancellationToken = default);
 
     [Get("/api/shopping-carts")]
     Task<List<ShoppingCartSessionDto>> GetShoppingCartsAsync(CancellationToken cancellationToken = default);
@@ -48,5 +48,5 @@ public interface INexusBooksApi
     Task<ShoppingCartSessionDto?> UpdateShoppingCartAsync(Guid id, [Body] ShoppingCartSessionDto shoppingCart, CancellationToken cancellationToken = default);
 
     [Delete("/api/shopping-carts/{id}")]
-    Task<bool> DeleteShoppingCartAsync(Guid id, CancellationToken cancellationToken = default);
+    Task DeleteShoppingCartAsync(Guid id, CancellationToken cancellationToken = default);
 }

@@ -3,7 +3,7 @@ using Yarp.ReverseProxy.Configuration;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddReverseProxy()
-    .LoadFromMemory(GetRoutes(), GetClusters());
+    .LoadFromMemory(GetRoutes(), GetClusters(builder.Configuration));
 
 var app = builder.Build();
 
@@ -35,15 +35,17 @@ static RouteConfig[] GetRoutes()
     ];
 }
 
-static ClusterConfig[] GetClusters()
+static ClusterConfig[] GetClusters(IConfiguration configuration)
 {
+    string Endpoint(string name, string fallback) => configuration[$"ServiceEndpoints:{name}"] ?? fallback;
+
     return [
         new ClusterConfig
         {
             ClusterId = "author-cluster",
             Destinations = new Dictionary<string, DestinationConfig>
             {
-                ["author"] = new() { Address = "http://localhost:5261/" }
+                ["author"] = new() { Address = Endpoint("Authors", "http://localhost:5261/") }
             }
         },
         new ClusterConfig
@@ -51,7 +53,7 @@ static ClusterConfig[] GetClusters()
             ClusterId = "book-cluster",
             Destinations = new Dictionary<string, DestinationConfig>
             {
-                ["book"] = new() { Address = "http://localhost:5006/" }
+                ["book"] = new() { Address = Endpoint("Books", "http://localhost:5006/") }
             }
         },
         new ClusterConfig
@@ -59,7 +61,7 @@ static ClusterConfig[] GetClusters()
             ClusterId = "shoppingcart-cluster",
             Destinations = new Dictionary<string, DestinationConfig>
             {
-                ["shoppingcart"] = new() { Address = "http://localhost:5290/" }
+                ["shoppingcart"] = new() { Address = Endpoint("ShoppingCart", "http://localhost:5290/") }
             }
         }
     ];
