@@ -45,6 +45,8 @@ services:
     build:
       context: .
       dockerfile: NexusBooks.Client/Dockerfile
+    ports:
+      - "8080:8080"
 
   sql_server:
     image: mcr.microsoft.com/mssql/server:2025-latest
